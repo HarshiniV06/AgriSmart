@@ -7,17 +7,17 @@ from sklearn.metrics import r2_score
 
 print("🔹 Loading datasets...")
 
-# ================= LOAD DATA =================
+# LOAD DATA
 yield_df = pd.read_csv("yield.csv")
 rain_df = pd.read_csv("rainfall.csv")
 temp_df = pd.read_csv("temp.csv")
 
-# ================= CLEAN COLUMN NAMES =================
+# CLEAN COLUMN NAMES
 yield_df.columns = yield_df.columns.str.strip().str.lower()
 rain_df.columns = rain_df.columns.str.strip().str.lower()
 temp_df.columns = temp_df.columns.str.strip().str.lower()
 
-# ================= RENAME COLUMNS =================
+#  RENAME COLUMNS 
 yield_df.rename(columns={
     "area": "location",
     "item": "crop",
@@ -34,12 +34,12 @@ temp_df.rename(columns={
     "avg_temp": "temperature"
 }, inplace=True)
 
-# ================= SELECT REQUIRED COLUMNS =================
+# SELECT REQUIRED COLUMNS 
 yield_df = yield_df[["location", "crop", "year", "yield"]]
 rain_df = rain_df[["location", "year", "rainfall"]]
 temp_df = temp_df[["location", "year", "temperature"]]
 
-# ================= HANDLE INVALID VALUES =================
+# HANDLE INVALID VALUES
 yield_df.replace("..", pd.NA, inplace=True)
 rain_df.replace("..", pd.NA, inplace=True)
 temp_df.replace("..", pd.NA, inplace=True)
@@ -52,12 +52,12 @@ yield_df["year"] = pd.to_numeric(yield_df["year"], errors="coerce")
 rain_df["year"] = pd.to_numeric(rain_df["year"], errors="coerce")
 temp_df["year"] = pd.to_numeric(temp_df["year"], errors="coerce")
 
-# ================= DROP MISSING =================
+# DROP MISSING 
 yield_df.dropna(inplace=True)
 rain_df.dropna(inplace=True)
 temp_df.dropna(inplace=True)
 
-# ================= MERGE DATA =================
+# MERGE DATA 
 print("🔹 Merging datasets...")
 
 merged = pd.merge(
@@ -78,7 +78,7 @@ merged.dropna(inplace=True)
 
 print("Merged dataset shape:", merged.shape)
 
-# ================= ENCODE CATEGORICAL =================
+# ENCODE CATEGORICAL
 encoders = {}
 
 for col in ["location", "crop"]:
@@ -86,16 +86,16 @@ for col in ["location", "crop"]:
     merged[col] = le.fit_transform(merged[col])
     encoders[col] = le
 
-# ================= FEATURES & TARGET =================
+# FEATURES & TARGET
 X = merged.drop("yield", axis=1)
 y = merged["yield"]
 
-# ================= SPLIT =================
+# SPLIT 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# ================= MODEL =================
+# MODEL 
 print("🔹 Training Gradient Boosting Regressor...")
 
 model = GradientBoostingRegressor(
@@ -107,11 +107,11 @@ model = GradientBoostingRegressor(
 
 model.fit(X_train, y_train)
 
-# ================= EVALUATION =================
+# EVALUATION 
 r2 = r2_score(y_test, model.predict(X_test))
 print(f"✅ Yield Prediction R² Score: {r2:.2f}")
 
-# ================= SAVE MODEL =================
+# SAVE MODEL 
 with open("yield_model.pkl", "wb") as f:
     pickle.dump((model, encoders), f)
 
