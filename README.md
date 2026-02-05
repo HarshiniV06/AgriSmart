@@ -39,5 +39,11 @@ AGRISMART provides:
 
 ---
 
-## 🏗️ System Architecture
+## 🛠️ Tech Stack
+
+- **Frontend:** React.js, JavaScript, Tailwind CSS  
+- **Backend:** Python, Flask, REST APIs  
+- **Machine Learning:** Python, Scikit-learn / PyTorch  
+- **Tools:** Git, GitHub, Node.js, npm, Virtual Environments  
+
 
