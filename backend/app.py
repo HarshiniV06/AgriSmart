@@ -2,7 +2,6 @@ import pickle
 import pandas as pd
 from datetime import timedelta
 import os
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import (
@@ -55,19 +54,46 @@ except Exception as e:
     fertilizer_model = None
 
 try:
-    disease_model = None
-    print("[WARN] Disease detection model disabled (PyTorch dependencies issue)")
-except Exception as e:
-    print(f"[WARN] Disease detection model not found: {e}")
-    disease_model = None
-
-try:
-    # Try to load a PyTorch pest detection model for image-based inference.
+    # Try to load a PyTorch disease and pest detection models for image-based inference.
     import torch
-    from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
+    from torchvision.models import resnet50, ResNet50_Weights, mobilenet_v2, MobileNet_V2_Weights
     from torchvision import transforms
     from PIL import Image
 
+    # Load Disease Detection Model (ResNet50)
+    disease_model = None
+    disease_classes = []
+
+    disease_train_dir = os.path.join(os.path.dirname(__file__), "ml_models/disease_detection/data/train")
+    disease_model_path = os.path.join(os.path.dirname(__file__), "ml_models/disease_detection/model.pt")
+
+    if os.path.exists(disease_model_path) and os.path.exists(disease_train_dir):
+        # Build class list (ImageFolder sorts classes alphabetically)
+        disease_classes = sorted([d for d in os.listdir(disease_train_dir) if os.path.isdir(os.path.join(disease_train_dir, d))])
+
+        disease_weights = ResNet50_Weights.DEFAULT
+        disease_model = resnet50(weights=None)  # Don't download weights, we'll load our trained model
+
+        # Replace final fully connected layer to match number of classes
+        import torch.nn as nn
+        disease_model.fc = nn.Linear(disease_model.fc.in_features, len(disease_classes))
+
+        # Load saved state dict (map to CPU)
+        state = torch.load(disease_model_path, map_location="cpu", weights_only=False)
+        disease_model.load_state_dict(state)
+        disease_model.eval()
+        
+        # Preprocessing function (resize + to tensor)
+        disease_preprocess = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+        ])
+        print(f"[OK] Disease detection model loaded ({len(disease_classes)} classes)")
+    else:
+        disease_model = None
+        print("[WARN] Disease detection model or training data not found")
+
+    # Load Pest Detection Model
     pest_model = None
     pest_classes = []
 
@@ -79,24 +105,17 @@ try:
         pest_classes = sorted([d for d in os.listdir(pest_train_dir) if os.path.isdir(os.path.join(pest_train_dir, d))])
 
         weights = MobileNet_V2_Weights.DEFAULT
-        pest_model = mobilenet_v2(weights=weights)
+        pest_model = mobilenet_v2(weights=None)  # Don't download weights, we'll load our trained model
 
         # Replace classifier to match number of classes
         import torch.nn as nn
         pest_model.classifier[1] = nn.Linear(pest_model.last_channel, len(pest_classes))
 
         # Load saved state dict (map to CPU)
-        state = torch.load(model_path, map_location="cpu")
-        try:
-            pest_model.load_state_dict(state)
-        except Exception:
-            # If the state dict was saved with model.state_dict(), it should load; if not, try loading whole model
-            try:
-                pest_model = state
-            except Exception:
-                pest_model = None
-
+        state = torch.load(model_path, map_location="cpu", weights_only=False)
+        pest_model.load_state_dict(state)
         pest_model.eval()
+        
         # Preprocessing function from the pretrained weights
         pest_preprocess = weights.transforms()
         print(f"[OK] Pest detection model loaded ({len(pest_classes)} classes)")
@@ -104,7 +123,8 @@ try:
         pest_model = None
         print("[WARN] Pest detection model or training data not found; falling back to filename heuristics")
 except Exception as e:
-    print(f"[WARN] Pest detection model not found: {e}")
+    print(f"[WARN] Disease/Pest detection models not found: {e}")
+    disease_model = None
     pest_model = None
 
 
@@ -217,7 +237,10 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    if not user or not check_password_hash(user.password, password):
+    if not user:
+        return jsonify({"error": "No existing account found"}), 404
+
+    if not check_password_hash(user.password, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(identity=str(user.id))
@@ -230,6 +253,8 @@ def login():
             "email": user.email
         }
     })
+
+
 
 
 # ---------------- PREDICT YIELD (PROTECTED) ----------------
@@ -446,6 +471,50 @@ def predict_disease():
         if not image_file.filename:
             return jsonify({"error": "Invalid file"}), 400
         
+        filename = image_file.filename
+        filename_lower = filename.lower()
+        
+        # If a PyTorch disease model is available, try to run image-based inference first
+        if 'disease_model' in globals() and disease_model is not None:
+            try:
+                from PIL import Image
+                import torch
+
+                # Ensure stream is at start
+                try:
+                    image_file.stream.seek(0)
+                except Exception:
+                    pass
+
+                # Verify it's a valid image
+                try:
+                    img_test = Image.open(image_file.stream)
+                    img_test.verify()
+                    image_file.stream.seek(0)
+                except Exception:
+                    return jsonify({"error": "Invalid image file. Please upload a valid image (JPG, PNG, etc.)"}), 400
+
+                img = Image.open(image_file.stream).convert('RGB')
+                input_tensor = disease_preprocess(img).unsqueeze(0)
+
+                with torch.no_grad():
+                    outputs = disease_model(input_tensor)
+                    probs = torch.nn.functional.softmax(outputs, dim=1)
+                    conf_val, idx = torch.max(probs, dim=1)
+                    pred_idx = idx.item()
+                    conf_val = float(conf_val.item())
+
+                predicted_class = disease_classes[pred_idx] if (isinstance(disease_classes, (list, tuple)) and pred_idx < len(disease_classes)) else str(pred_idx)
+
+                return jsonify({
+                    "user_id": user_id,
+                    "disease": predicted_class,
+                    "confidence": round(conf_val, 3)
+                })
+            except Exception as e:
+                print(f"[WARN] Disease model inference failed, falling back to filename heuristics: {e}")
+
+        # Fallback: Verify image is valid
         try:
             image_file.stream.seek(0)
             from PIL import Image
@@ -454,8 +523,6 @@ def predict_disease():
         except Exception:
             return jsonify({"error": "Invalid image file. Please upload a valid image (JPG, PNG, etc.)"}), 400
         
-        filename = image_file.filename
-        filename_lower = filename.lower()
         clean_filename = filename.rsplit('.', 1)[0] if '.' in filename else filename
         
         # First, try to find in our test image mapping

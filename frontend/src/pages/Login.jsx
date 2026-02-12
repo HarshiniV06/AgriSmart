@@ -7,6 +7,32 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
+  const getLoginErrorMessage = (err) => {
+    const status = err?.response?.status;
+    const message = err?.response?.data?.message || err?.response?.data?.error;
+
+    if (status === 404) {
+      return "No existing account found. Please sign up first.";
+    }
+
+    if (typeof message === "string") {
+      const normalized = message.toLowerCase();
+      if (normalized.includes("not found") || normalized.includes("no account")) {
+        return "No existing account found. Please sign up first.";
+      }
+      if (normalized.includes("invalid") || normalized.includes("password")) {
+        return "Invalid email or password.";
+      }
+      return message;
+    }
+
+    if (status === 401) {
+      return "Invalid email or password.";
+    }
+
+    return "Login failed. Please try again.";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -16,7 +42,7 @@ export default function Login() {
       navigate("/");
     } catch (err) {
       console.error("Login error:", err);
-      setError("Invalid email or password");
+      setError(getLoginErrorMessage(err));
     }
   };
 
