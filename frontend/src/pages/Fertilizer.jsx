@@ -61,7 +61,7 @@ export default function Fertilizer() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       <div className="hidden md:block w-1/2">
-        <img src="/images/fertilizer.jpg" className="h-full w-300 object-cover" />
+        <img src="/images/fertilizer.jpg" alt="Fertilizer Recommendation" className="h-full w-300 object-cover" />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">

@@ -45,7 +45,7 @@ export default function Pest() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       <div className="hidden md:block w-1/2">
-        <img src="/images/pest.jpg" className="h-full w-full object-cover" />
+        <img src="/images/pest.jpg" alt="Pest Detection" className="h-full w-full object-cover" />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">

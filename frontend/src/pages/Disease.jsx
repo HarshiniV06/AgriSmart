@@ -45,7 +45,7 @@ export default function Disease() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       <div className="hidden md:block w-1/2">
-        <img src="/images/disease1.jpg" className="h-full w-full object-cover" />
+        <img src="/images/disease1.jpg" alt="Disease Detection" className="h-full w-full object-cover" />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">
