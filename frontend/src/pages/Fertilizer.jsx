@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 import ResultCard from "../components/ResultCard";
 
 export default function Fertilizer() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     crop: "",
     temperature: "",
@@ -65,20 +67,20 @@ export default function Fertilizer() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">
         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
           <h2 className="text-2xl font-bold text-green-700 mb-6">
-            Fertilizer Advisory
+            {t('modules.fertilizer.title')}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {Object.keys(form).map((key) => {
               const placeholders = {
-                crop: "Crop Type (e.g., Maize, Sugarcane)",
-                temperature: "Temperature (°C)",
-                humidity: "Humidity (%)",
-                moisture: "Soil Moisture (%)",
-                soil_type: "Soil Type (e.g., Sandy, Loamy, Black)",
-                nitrogen: "Nitrogen (N)",
-                phosphorous: "Phosphorous (P)",
-                potassium: "Potassium (K)"
+                crop: t('modules.fertilizer.cropType'),
+                temperature: t('modules.crop.temperature'),
+                humidity: t('modules.crop.humidity'),
+                moisture: t('modules.fertilizer.moisture'),
+                soil_type: t('modules.fertilizer.soilType'),
+                nitrogen: t('modules.crop.nitrogen'),
+                phosphorous: t('modules.crop.phosphorus'),
+                potassium: t('modules.crop.potassium')
               };
               
               if (key === "soil_type") {
@@ -90,7 +92,7 @@ export default function Fertilizer() {
                     onChange={handleChange}
                     className="w-full border p-3 rounded"
                   >
-                    <option value="">Select Soil Type</option>
+                    <option value="">{t('modules.fertilizer.selectSoil')}</option>
                     <option value="Sandy">Sandy</option>
                     <option value="Loamy">Loamy</option>
                     <option value="Black">Black</option>
@@ -118,7 +120,7 @@ export default function Fertilizer() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 disabled:bg-gray-400"
             >
-              {loading ? "Analyzing..." : "Get Recommendation"}
+              {loading ? t('common.loading') : t('modules.fertilizer.submit')}
             </button>
           </form>
 

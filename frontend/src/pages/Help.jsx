@@ -1,6 +1,9 @@
 import Navbar from "../components/Navbar";
+import { useTranslation } from "react-i18next";
 
 export default function Help() {
+  const { t } = useTranslation();
+
   return (
     <>
       <Navbar />
@@ -9,70 +12,64 @@ export default function Help() {
         <div className="max-w-5xl mx-auto bg-white p-10 rounded-xl shadow">
 
           <h1 className="text-3xl font-bold text-green-700 mb-6">
-            👨‍🌾 AgriSmart – Help Guide
+            {t('help.title')}
           </h1>
 
           <p className="text-gray-700 mb-8">
-            AgriSmart helps farmers make better decisions using Artificial
-            Intelligence. Below is a simple guide to use each feature.
+            {t('help.intro')}
           </p>
 
           <div className="space-y-6">
 
             <div>
               <h2 className="text-xl font-semibold text-green-600">
-                🌱 Crop Recommendation
+                {t('help.crop.title')}
               </h2>
               <p>
-                Enter soil nutrients (N, P, K), pH, and rainfall.
-                The system suggests the best crop for your land.
+                {t('help.crop.desc')}
               </p>
             </div>
 
             <div>
               <h2 className="text-xl font-semibold text-green-600">
-                🌿 Fertilizer Advisory
+                {t('help.fertilizer.title')}
               </h2>
               <p>
-                Enter crop and soil details. AgriSmart recommends the correct
-                fertilizer and usage.
+                {t('help.fertilizer.desc')}
               </p>
             </div>
 
             <div>
               <h2 className="text-xl font-semibold text-green-600">
-                🍂 Disease Detection
+                {t('help.disease.title')}
               </h2>
               <p>
-                Upload a clear photo of the infected leaf.
-                The system identifies the disease and gives treatment advice.
+                {t('help.disease.desc')}
               </p>
             </div>
 
             <div>
               <h2 className="text-xl font-semibold text-green-600">
-                🐛 Pest Detection
+                {t('help.pest.title')}
               </h2>
               <p>
-                Upload an image of the pest on the crop.
-                The system detects the pest and suggests control methods.
+                {t('help.pest.desc')}
               </p>
             </div>
 
             <div>
               <h2 className="text-xl font-semibold text-green-600">
-                🌾 Yield Prediction
+                {t('help.yield.title')}
               </h2>
               <p>
-                Enter crop, weather, and soil details.
-                The system predicts expected yield and provides care tips.
+                {t('help.yield.desc')}
               </p>
             </div>
 
           </div>
 
           <div className="mt-10 bg-green-100 p-4 rounded text-green-800">
-            ✅ Tip: Use correct values and clear images for best results.
+            {t('help.tip')}
           </div>
 
         </div>

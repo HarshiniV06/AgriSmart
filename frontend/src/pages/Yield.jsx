@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 import ResultCard from "../components/ResultCard";
 
 export default function Yield() {
+  const { t } = useTranslation();
   const locations = ['Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Brazil', 'Canada', 'China', 'Colombia', 'Egypt', 'Finland', 'France', 'Germany', 'Ghana', 'India', 'Indonesia', 'Italy', 'Japan', 'Kenya', 'Mexico', 'Netherlands', 'Nigeria', 'Pakistan', 'Peru', 'Philippines', 'Poland', 'Russia', 'South Africa', 'Spain', 'Thailand', 'Turkey', 'Ukraine', 'United Kingdom', 'United States', 'Vietnam', 'Zimbabwe'];
   
   const crops = ['Cassava', 'Maize', 'Plantains and others', 'Potatoes', 'Rice, paddy', 'Sorghum', 'Soybeans', 'Sweet potatoes', 'Wheat', 'Yams'];
@@ -75,10 +77,10 @@ export default function Yield() {
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-10">
 
           <h1 className="text-3xl font-bold text-green-700 mb-2">
-            Crop Yield Prediction
+            {t('modules.yield.title')}
           </h1>
           <p className="text-gray-600 mb-8">
-            Estimate yield and get smart crop care recommendations
+            {t('modules.yield.subtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -91,7 +93,7 @@ export default function Yield() {
                 required
                 className="border p-3 rounded-lg"
               >
-                <option value="">Select Location (Country)</option>
+                <option value="">{t('modules.yield.selectLocation')}</option>
                 {locations.map((loc) => (
                   <option key={loc} value={loc}>
                     {loc}
@@ -106,7 +108,7 @@ export default function Yield() {
                 required
                 className="border p-3 rounded-lg"
               >
-                <option value="">Select Crop</option>
+                <option value="">{t('modules.yield.selectCrop')}</option>
                 {crops.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -116,7 +118,7 @@ export default function Yield() {
 
               <input
                 name="year"
-                placeholder="Year"
+                placeholder={t('modules.yield.year')}
                 onChange={handleChange}
                 required
                 className="border p-3 rounded-lg"
@@ -124,7 +126,7 @@ export default function Yield() {
 
               <input
                 name="rainfall"
-                placeholder="Rainfall (mm)"
+                placeholder={t('modules.crop.rainfall')}
                 onChange={handleChange}
                 required
                 className="border p-3 rounded-lg"
@@ -132,7 +134,7 @@ export default function Yield() {
 
               <input
                 name="temperature"
-                placeholder="Temperature (°C)"
+                placeholder={t('modules.crop.temperature')}
                 onChange={handleChange}
                 required
                 className="border p-3 rounded-lg"
@@ -140,7 +142,7 @@ export default function Yield() {
 
               <input
                 name="soil_ph"
-                placeholder="Soil pH"
+                placeholder={t('modules.crop.ph')}
                 onChange={handleChange}
                 className="border p-3 rounded-lg"
               />
@@ -151,7 +153,7 @@ export default function Yield() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition disabled:bg-gray-400"
             >
-              {loading ? "Predicting..." : "Predict Yield"}
+              {loading ? t('common.loading') : t('modules.yield.submit')}
             </button>
           </form>
 

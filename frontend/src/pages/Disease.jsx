@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 import ResultCard from "../components/ResultCard";
 
 export default function Disease() {
+  const { t } = useTranslation();
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,7 +51,7 @@ export default function Disease() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">
         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
           <h2 className="text-2xl font-bold text-green-700 mb-6">
-            Disease Detection
+            {t('modules.disease.title')}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -66,7 +68,7 @@ export default function Disease() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 disabled:bg-gray-400"
             >
-              {loading ? "Detecting..." : "Detect Disease"}
+              {loading ? t('common.loading') : t('modules.disease.submit')}
             </button>
           </form>
 

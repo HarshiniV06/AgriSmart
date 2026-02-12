@@ -11,20 +11,29 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 
 from models import db, User
 from ml_models.yield_prediction.care_advisory import generate_care_advice
 
+# Load environment variables
+load_dotenv()
 
 # ---------------- APP CONFIG ----------------
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///agrismart.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///agrismart.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_SECRET_KEY"] = "agrismart-secret-key"
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "agrismart-secret-key-change-in-production")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 
-CORS(app)
+# CORS configuration for production
+CORS(app, origins=[
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://agri-smart-beige.vercel.app",
+    "https://*.vercel.app"
+])
 
 db.init_app(app)
 jwt = JWTManager(app)
@@ -739,6 +748,19 @@ def predict_pest():
         return jsonify({"error": f"Pest detection error: {str(e)}"}), 400
 
 
+# ---------------- HEALTH CHECK ----------------
+@app.route("/", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "service": "AgriSmart API",
+        "version": "1.0.0",
+        "endpoints": ["/signup", "/login", "/predict-crop", "/predict-fertilizer", "/predict-disease", "/predict-pest", "/predict-yield"]
+    }), 200
+
+
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_ENV", "development") == "development"
+    app.run(host="0.0.0.0", port=port, debug=debug)

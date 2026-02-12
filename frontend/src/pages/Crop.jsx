@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 import ResultCard from "../components/ResultCard";
 
 export default function Crop() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     N: "",
     P: "",
@@ -64,19 +66,19 @@ export default function Crop() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-10">
         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
           <h2 className="text-2xl font-bold text-green-700 mb-6">
-            Crop Recommendation
+            {t('modules.crop.title')}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {Object.keys(form).map((key) => {
               const placeholders = {
-                N: "Nitrogen (N)",
-                P: "Phosphorus (P)",
-                K: "Potassium (K)",
-                temperature: "Temperature (°C)",
-                humidity: "Humidity (%)",
-                ph: "Soil pH",
-                rainfall: "Rainfall (mm)"
+                N: t('modules.crop.nitrogen'),
+                P: t('modules.crop.phosphorus'),
+                K: t('modules.crop.potassium'),
+                temperature: t('modules.crop.temperature'),
+                humidity: t('modules.crop.humidity'),
+                ph: t('modules.crop.ph'),
+                rainfall: t('modules.crop.rainfall')
               };
               return (
                 <input
@@ -97,7 +99,7 @@ export default function Crop() {
               disabled={loading}
               className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 disabled:bg-gray-400"
             >
-              {loading ? "Recommending..." : "Recommend Crop"}
+              {loading ? t('common.loading') : t('modules.crop.submit')}
             </button>
           </form>
 
