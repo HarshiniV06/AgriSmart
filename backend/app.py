@@ -40,10 +40,14 @@ jwt = JWTManager(app)
 
 
 # ---------------- LOAD MODELS ----------------
-with open("ml_models/yield_prediction/yield_model.pkl", "rb") as f:
-    yield_model, encoders = pickle.load(f)
-
-print("[OK] Yield model loaded successfully")
+try:
+    with open("ml_models/yield_prediction/yield_model.pkl", "rb") as f:
+        yield_model, encoders = pickle.load(f)
+    print("[OK] Yield model loaded successfully")
+except Exception as e:
+    print(f"[WARN] Yield prediction model not found: {e}")
+    yield_model = None
+    encoders = None
 
 try:
     import joblib
@@ -270,6 +274,9 @@ def login():
 @app.route("/predict-yield", methods=["POST"])
 @jwt_required()
 def predict_yield():
+    if yield_model is None:
+        return jsonify({"error": "Yield prediction model not loaded. Please train the model first."}), 503
+    
     user_id = get_jwt_identity()
     data = request.json
 
