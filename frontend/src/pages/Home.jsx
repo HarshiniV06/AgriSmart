@@ -16,7 +16,7 @@ export default function Home() {
 
   const handleGetStarted = () => {
     if (!isLoggedIn) {
-      navigate("/");
+      navigate("/login");
     } else {
       scrollToCards();
     }

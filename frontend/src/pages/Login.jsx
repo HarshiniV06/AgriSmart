@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
+import api from "../api/axios";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -38,7 +38,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:5000/login", form);
+      const res = await api.post("/login", form);
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       navigate("/");

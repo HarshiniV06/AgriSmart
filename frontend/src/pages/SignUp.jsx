@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
+import api from "../api/axios";
 
 export default function SignUp() {
   const { t } = useTranslation();
@@ -11,11 +11,13 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://127.0.0.1:5000/signup", form);
+      await api.post("/signup", form);
+      alert("Account created successfully! Please login.");
       navigate("/login");
     } catch (err) {
       console.error("Signup error:", err);
-      alert("Signup failed. Email might already exist.");
+      const errorMsg = err.response?.data?.error || "Signup failed. Please try again.";
+      alert(errorMsg);
     }
   };
 

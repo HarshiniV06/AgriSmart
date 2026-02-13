@@ -28,12 +28,16 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "agrismart-secret-key
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
 
 # CORS configuration for production
-CORS(app, origins=[
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://agri-smart-beige.vercel.app",
-    "https://*.vercel.app"
-])
+CORS(app, 
+     origins=[
+         "http://localhost:3000",
+         "http://127.0.0.1:3000",
+         "https://agri-smart-beige.vercel.app",
+         "https://agri-smartt.vercel.app"
+     ],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"]
+)
 
 db.init_app(app)
 jwt = JWTManager(app)
