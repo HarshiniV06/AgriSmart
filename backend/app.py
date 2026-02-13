@@ -42,6 +42,12 @@ CORS(app,
 db.init_app(app)
 jwt = JWTManager(app)
 
+# ---------------- INITIALIZE DATABASE ----------------
+with app.app_context():
+    db.create_all()
+    print("[OK] Database tables initialized")
+
+
 
 # ---------------- LOAD MODELS ----------------
 try:
