@@ -79,7 +79,7 @@ export default function Login() {
             required
           />
 
-          <button className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-semibold transition">
+          <button type="submit" className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-semibold transition">
             {t('auth.loginButton')}
           </button>
         </form>
